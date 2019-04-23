@@ -16,9 +16,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/eu-ga/go_utils"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,8 +27,8 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cli",
-	Short: "A brief description of your application",
+	Use:   "Quiz",
+	Short: "Quiz is an application that allows you to take a simple quiz.",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
 
@@ -69,14 +69,14 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// Find home directory.
-		home, err := homedir.Dir()
+		curDir, err := go_utils.GetCurrentDir()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
 		// Search config in home directory with name ".cli" (without extension).
-		viper.AddConfigPath(home)
+		viper.AddConfigPath(curDir)
 		viper.SetConfigName(".cli")
 	}
 

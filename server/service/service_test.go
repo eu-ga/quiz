@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/eu-ga/go_utils"
 	pb "github.com/eu-ga/quiz/proto"
 	"github.com/eu-ga/quiz/server/storage"
 
@@ -9,105 +10,105 @@ import (
 	"testing"
 )
 
-func init(){
+func init() {
+	storage.Cache = storage.DataStore{
+		Users:     make(map[int64]*storage.User),
+		Questions: make(map[int64]*pb.Question),
+	}
 	q1 := &pb.Question{
-		Id:1,
-		Body:"Question number one.",
-		CorrectAnswerId:1,
-		Answers:[]*pb.Answer{
+		Id:              1,
+		Body:            "Question number one.",
+		CorrectAnswerId: 1,
+		Answers: []*pb.Answer{
 			{
-				Id:1,
-				QuestionId:1,
-				Body:"Answer number 1.",
-			},{
-				Id:2,
-				QuestionId:1,
-				Body:"Answer number 2.",
-			},{
-				Id:3,
-				QuestionId:1,
-				Body:"Answer number 3.",
-			},{
-				Id:4,
-				QuestionId:1,
-				Body:"Answer number 4.",
+				Id:         1,
+				QuestionId: 1,
+				Body:       "Answer number 1.",
+			}, {
+				Id:         2,
+				QuestionId: 1,
+				Body:       "Answer number 2.",
+			}, {
+				Id:         3,
+				QuestionId: 1,
+				Body:       "Answer number 3.",
+			}, {
+				Id:         4,
+				QuestionId: 1,
+				Body:       "Answer number 4.",
 			},
-
 		},
 	}
 	q2 := &pb.Question{
-		Id:2,
-		Body:"Question number two.",
-		CorrectAnswerId:2,
-		Answers:[]*pb.Answer{
+		Id:              2,
+		Body:            "Question number two.",
+		CorrectAnswerId: 2,
+		Answers: []*pb.Answer{
 			{
-				Id:1,
-				QuestionId:2,
-				Body:"Answer number 1.",
-			},{
-				Id:2,
-				QuestionId:2,
-				Body:"Answer number 2.",
-			},{
-				Id:3,
-				QuestionId:2,
-				Body:"Answer number 3.",
-			},{
-				Id:4,
-				QuestionId:2,
-				Body:"Answer number 4.",
+				Id:         1,
+				QuestionId: 2,
+				Body:       "Answer number 1.",
+			}, {
+				Id:         2,
+				QuestionId: 2,
+				Body:       "Answer number 2.",
+			}, {
+				Id:         3,
+				QuestionId: 2,
+				Body:       "Answer number 3.",
+			}, {
+				Id:         4,
+				QuestionId: 2,
+				Body:       "Answer number 4.",
 			},
-
 		},
 	}
 	q3 := &pb.Question{
-		Id:3,
-		Body:"Question number 3.",
-		CorrectAnswerId:3,
-		Answers:[]*pb.Answer{
+		Id:              3,
+		Body:            "Question number 3.",
+		CorrectAnswerId: 3,
+		Answers: []*pb.Answer{
 			{
-				Id:1,
-				QuestionId:3,
-				Body:"Answer number 1.",
-			},{
-				Id:2,
-				QuestionId:3,
-				Body:"Answer number 2.",
-			},{
-				Id:3,
-				QuestionId:3,
-				Body:"Answer number 3.",
-			},{
-				Id:4,
-				QuestionId:3,
-				Body:"Answer number 4.",
+				Id:         1,
+				QuestionId: 3,
+				Body:       "Answer number 1.",
+			}, {
+				Id:         2,
+				QuestionId: 3,
+				Body:       "Answer number 2.",
+			}, {
+				Id:         3,
+				QuestionId: 3,
+				Body:       "Answer number 3.",
+			}, {
+				Id:         4,
+				QuestionId: 3,
+				Body:       "Answer number 4.",
 			},
-
 		},
 	}
 	q4 := &pb.Question{
-		Id:4,
-		Body:"Question number 4.",
-		CorrectAnswerId:4,
-		Answers:[]*pb.Answer{
+		Id:              4,
+		Body:            "Question number 4.",
+		CorrectAnswerId: 4,
+		Answers: []*pb.Answer{
 			{
-				Id:1,
-				QuestionId:4,
-				Body:"Answer number 1.",
-			},{
-				Id:2,
-				QuestionId:4,
-				Body:"Answer number 2.",
-			},{
-				Id:3,
-				QuestionId:4,
-				Body:"Answer number 3.",
-			},{
-				Id:4,
-				QuestionId:4,
-				Body:"Answer number 4.",
+				Id:         1,
+				QuestionId: 4,
+				Body:       "Answer number 1.",
+			}, {
+				Id:         2,
+				QuestionId: 4,
+				Body:       "Answer number 2.",
+			}, {
+				Id:         3,
+				QuestionId: 4,
+				Body:       "Answer number 3.",
+			}, {
+				Id:         4,
+				QuestionId: 4,
+				Body:       "Answer number 4.",
 			},
-
 		},
 	}
 	storage.Cache.Questions[q1.Id] = q1
@@ -117,16 +118,16 @@ func init(){
 	storage.Cache.PerQuizQuestions = 3
 }
 
-func TestGetRandomQuestions(t *testing.T){
+func TestGetRandomQuestions(t *testing.T) {
 	got := getRandomQuestions()
 	assert.True(t,
-		int64(len(got))==storage.Cache.PerQuizQuestions,
+		int64(len(got)) == storage.Cache.PerQuizQuestions,
 		fmt.Sprintf("Got too many questions. Got: %d, Expected: %d", len(got), storage.Cache.PerQuizQuestions))
 	test := make(map[int64]interface{})
-	for _,q := range got{
-		if _,ok := test[q.Id];ok{
-			assert.Fail(t, fmt.Sprintf("Duplicated questions. Id: %d",q.Id))
-		}else {
+	for _, q := range got {
+		if _, ok := test[q.Id]; ok {
+			assert.Fail(t, fmt.Sprintf("Duplicated questions. Id: %d", q.Id))
+		} else {
 			test[q.Id] = q
 		}
 	}
@@ -136,25 +137,63 @@ func TestUpdateStatistics(t *testing.T) {
 	storage.Cache.PerQuizQuestions = 5
 	data := []storage.UserStatistics{}
 	el1 := storage.UserStatistics{
-		SuccessRate:60,
+		SuccessRate: 60,
 	}
 	el2 := storage.UserStatistics{
-		SuccessRate:70,
+		SuccessRate: 70,
 	}
 	el3 := storage.UserStatistics{
-		SuccessRate:10,
+		SuccessRate: 10,
 	}
-	data, _ = storage.InsertSort(data,el1)
-	data, _ = storage.InsertSort(data,el2)
-	data, _ = storage.InsertSort(data,el3)
+	data, _ = storage.InsertSort(data, el1)
+	data, _ = storage.InsertSort(data, el2)
+	data, _ = storage.InsertSort(data, el3)
 	storage.Cache.UpdateStatistics(data)
 	correctAnswers := int64(0)
 	res := UpdateStatistics(correctAnswers, 0)
-	assert.True(t, res.SuccessRate==int64(0),fmt.Sprintf("Error: should be %d, got %d",0, res.SuccessRate))
+	assert.True(t, res.SuccessRate == int64(0), fmt.Sprintf("Error: should be %d, got %d", 0, res.SuccessRate))
 	correctAnswers = int64(0)
 	res = UpdateStatistics(correctAnswers, 0)
-	assert.True(t, res.SuccessRate==int64(40),fmt.Sprintf("Error: should be %d, got %d",20, res.SuccessRate))
+	assert.True(t, res.SuccessRate == int64(40), fmt.Sprintf("Error: should be %d, got %d", 20, res.SuccessRate))
 	correctAnswers = int64(1)
 	res = UpdateStatistics(correctAnswers, 0)
-	assert.True(t, res.SuccessRate==int64(66),fmt.Sprintf("Error: should be %d, got %d",60, res.SuccessRate))
+	assert.True(t, res.SuccessRate == int64(66), fmt.Sprintf("Error: should be %d, got %d", 60, res.SuccessRate))
+}
+
+func TestAddQuestion(t *testing.T) {
+	storage.Cache.Questions = make(map[int64]*pb.Question)
+	q1 := pb.Question{
+		Id:              1,
+		Body:            "Question number one.",
+		CorrectAnswerId: 1,
+		Answers: []*pb.Answer{
+			{
+				Id:         1,
+				QuestionId: 1,
+				Body:       "Answer number 1.",
+			}, {
+				Id:         2,
+				QuestionId: 1,
+				Body:       "Answer number 2.",
+			}, {
+				Id:         3,
+				QuestionId: 1,
+				Body:       "Answer number 3.",
+			}, {
+				Id:         4,
+				QuestionId: 1,
+				Body:       "Answer number 4.",
+			},
+		},
+	}
+	q, ok := storage.Cache.AddQuestion(q1)
+	if ok {
+		assert.True(t, ok, "Cannot add question.", string(go_utils.CreateJson(q)))
+		assert.True(t, q != nil)
+	} else {
+		assert.True(t, q == nil)
+	}
+	q, ok = storage.Cache.AddQuestion(q1)
+	assert.False(t, ok, "Cannot add question.", string(go_utils.CreateJson(q)))
+	assert.True(t, q == nil)
 }

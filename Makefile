@@ -1,4 +1,5 @@
 RELEASE?=0.1.0
+PORT?=":50051"
 
 COMMIT?=$(shell git rev-parse --short HEAD)
 BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
@@ -20,6 +21,7 @@ build_service:
 		-ldflags "-X main.version=${RELEASE} -X main.commit=${COMMIT} -X main.buildTime=${BUILD_TIME} -X main.port=${PORT}" \
 		-o bin/service/service \
 		./server
+		cp ./server/questions.json ./bin/service
 
 clean_all: clean_cli clean_service
 
