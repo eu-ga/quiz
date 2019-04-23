@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package cli;
+
+service Quiz{
+    rpc GetQuestions(User) returns (Response) {}
+    rpc SendAnswers(PostAnswers) returns (Result) {}
+}
+
+message User{
+    int64 id = 1;
+    string name = 2;
+}
+
+message Response{
+    int64 userId = 1;
+    repeated Question Questions = 2;
+}
+
+message Answer{
+    int64 id = 1;
+    int64 QuestionId = 2;
+    string Body = 3;
+}
+
+message Question{
+    int64 id = 1;
+    string Body = 2;
+    repeated Answer Answers = 4;
+    int64 CorrectAnswerId = 5;
+}
+
+message Result{
+    int64 CorrectAnswers = 1;
+    int64 SuccessRate = 2;
+}
+
+message Solution{
+    int64 QuestionId = 1;
+    int64 AnswerId = 2;
+}
+
+message PostAnswers{
+    int64 UserId = 1;
+    repeated Solution solution  = 2;
+}
