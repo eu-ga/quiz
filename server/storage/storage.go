@@ -10,6 +10,11 @@ import (
 //simulation fo the data storage
 var Cache DataStore
 
+type ConfigQuestions struct {
+	Questions        []pb.Question
+	PerQuizQuestions int64
+}
+
 type dataStore interface {
 	AddUser(pb.User) (*pb.User, bool)
 	GetUser(int64) *pb.User
@@ -96,12 +101,12 @@ func (ds *DataStore) LoadQuestions() {
 	if err != nil {
 		panic(err.Error())
 	}
-	var questions []pb.Question
+	var questions ConfigQuestions
 	if err := readConf(filePath+"/questions.json", &questions); err != nil {
 		panic(err.Error())
 	}
-	for _, q := range questions {
+	for _, q := range questions.Questions {
 		ds.AddQuestion(q)
 	}
-
+	ds.PerQuizQuestions = questions.PerQuizQuestions
 }

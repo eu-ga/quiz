@@ -15,7 +15,17 @@ type Service struct {
 }
 
 //GetQuestions RCP request handler. Returns random set of questions
+func (s *Service) PerQuizQuestions(ctx context.Context, q *pb.NumberOfQuestions) (*pb.NumberOfQuestions, error) {
+	log.Println("Run PerQuizQuestions")
+	var res = pb.NumberOfQuestions{
+		Questions: storage.Cache.PerQuizQuestions,
+	}
+	return &res, nil
+}
+
+//GetQuestions RCP request handler. Returns random set of questions
 func (s *Service) GetQuestions(ctx context.Context, user *pb.User) (*pb.Response, error) {
+	log.Println("Run GetQuestions")
 	var res = pb.Response{
 		Questions: getRandomQuestions(),
 		UserId:    user.Id,
@@ -26,15 +36,16 @@ func (s *Service) GetQuestions(ctx context.Context, user *pb.User) (*pb.Response
 //SendAnswers RCP request handler that updates statistics for the proper response
 // with user success rate(how he performed quiz comparing to the others)
 func (s *Service) SendAnswers(ctx context.Context, answers *pb.PostAnswers) (*pb.Result, error) {
+	log.Println("Run SendAnswers")
 	var res pb.Result
 	correctAnswers, err := checkAnswers(answers)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
 	} else {
-		UpdateStatistics(correctAnswers, answers.UserId)
-		res.CorrectAnswers = correctAnswers
-		res.SuccessRate = storage.Cache.Users[answers.UserId].Statistics.SuccessRate
+		r := UpdateStatistics(correctAnswers, answers.UserId)
+		res.CorrectAnswers = r.CorrectAnswers
+		res.SuccessRate = r.SuccessRate
 	}
 	return &res, nil
 }
@@ -79,6 +90,13 @@ func UpdateStatistics(correctAnswers, userId int64) *pb.Result {
 		SuccessRate:    rate,
 	}
 	data, i := storage.InsertSort(storage.Cache.Statistics, tmp)
+	u := storage.User{
+		User: pb.User{
+			Id: userId,
+		},
+		Statistics: tmp,
+	}
+	storage.Cache.AddUser(&u)
 	storage.Cache.UpdateStatistics(data)
 	res := pb.Result{
 		CorrectAnswers: tmp.CorrectAnswers,

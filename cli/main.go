@@ -14,7 +14,9 @@
 
 package main
 
-import "github.com/eu-ga/quiz/cli/cmd"
+import (
+	"github.com/eu-ga/quiz/cli/cmd"
+)
 
 func main() {
 	cmd.Execute()

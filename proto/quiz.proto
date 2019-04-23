@@ -5,6 +5,11 @@ package cli;
 service Quiz{
     rpc GetQuestions(User) returns (Response) {}
     rpc SendAnswers(PostAnswers) returns (Result) {}
+    rpc PerQuizQuestions(NumberOfQuestions) returns (NumberOfQuestions){}
+}
+
+message NumberOfQuestions{
+    int64 Questions = 1;
 }
 
 message User{
