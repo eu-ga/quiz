@@ -19,7 +19,6 @@ type dataStore interface {
 	AddUser(pb.User) (*pb.User, bool)
 	GetUser(int64) *pb.User
 	AddQuestion(pb.Question) (*pb.Question, bool)
-	SaveSolution(pb.Solution) bool
 }
 
 //In-memory caching system
@@ -78,14 +77,6 @@ func (ds *DataStore) AddQuestion(question pb.Question) (*pb.Question, bool) {
 		return &question, true
 	}
 	return nil, false
-}
-
-//SaveSolution puts result of the quiz into storage,
-//so app can use it for the response for users
-func (ds *DataStore) SaveSolution(solution pb.Solution) bool {
-	ds.Lock()
-	defer ds.Unlock()
-	return false
 }
 
 //UpdateStatistics keeps statistics up to date, and users will get proper data in the response
